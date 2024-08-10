@@ -1,5 +1,3 @@
-#This project utilizes the follow Superstore data: 
-
 CREATE TABLE superstore (
     item_id INTEGER PRIMARY KEY,
     item_name TEXT,
@@ -27,47 +25,40 @@ VALUES
     (14, 'Cutlery Set', 'Kitchen Supplies', 34.50, 40, 4.4),
     (15, 'Cozy Throw Blanket', 'Furnishings', 24.99, 100, 4.2);
 
-#Use a SELECT statement to visualize the table
+-- Use a SELECT statement to visualize the table
 select*
 from superstore
-order by price desc;
+;
 
-#Show an statistic about items
-select sum(stock_quantity), item_name
-from superstore
-group by item_name
-order by stock_quantity desc;
+-- Write a SQL query that orders the items by price.
+SELECT item_name, price
+FROM superstore
+ORDER BY price DESC
+;
 
-#Show an statistic about category
-select avg(average_rating), category
-from superstore
-group by category
-order by average_rating desc;
+-- Write your own SQL query that will show a statistic about the item prices, like a sum, average, minimum, maximum, or count.
 
-#Show an statistic about items
-select max(price),category,item_name
-from superstore;
+-- How many categories?
+SELECT COUNT(category)
+FROM superstore
+;
+-- Stock quantity per category
+SELECT SUM(stock_quantity) as stock_quantity, category
+FROM superstore
+GROUP BY category
+;
 
-#Show an statistic about category
-select sum(stock_quantity), category, price
-from superstore
-group by category;
-
-#Show table rows
-select count(item_id)
-from superstore;
-
-#Show an statistic about an specific item
-select avg(price),category
-from superstore
-where category='Kitchen Supplies';
-
-#Show an statistic about an specific item
+-- Show an statistic about an specific item
 select sum(stock_quantity), item_name
 from superstore
 where item_name='Air Purifier';
 
-#Show table in specifi order
-Select *
+-- Show an statistic about an specific item
+select avg(price) AS price, category
 from superstore
-order by average_rating desc;
+where category='Kitchen Supplies';
+
+-- Show an statistic about items
+select max(price) as price
+from superstore
+ORDER BY price DESC;
