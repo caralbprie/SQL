@@ -1,5 +1,3 @@
-#This analysis utilized the following Fortune 500 dataset:
-
 CREATE TABLE fortune_companies (
     company_id INTEGER PRIMARY KEY,
     company_name TEXT,
@@ -58,59 +56,88 @@ VALUES
     ('Company JJ', 'Manufacturing', 370.0, 3100, 1, 20, 12, 7.6),
     ('Company KK', 'Healthcare', 150.2, 3400, 0, 16, 8, 5.3);
 
-# Analysis: 
+-- Whole Table
 
--- Shows the Table
-select*
-from fortune_companies;
-
--- Shows which companies offer healthcare
-select company_name,
-case when healthcare_benefits=1 then 'Insurance Available'
-else 'No Insurance'
-end as healthcare
-from fortune_companies
-order by healthcare;
-
--- Shows which industries have a total revenue over $500M
-select industry,sum(revenue) as total_revenue
-from fortune_companies
-group by industry
-Having total_revenue>=500
-order by total_revenue desc;
-
--- Shows avg paid time off days from industries with at least 1000 employees and available healthcare
-select industry, avg(paid_time_off_days) as avg_ptod
-from fortune_companies
-group by industry
-Having employees>=1000
-and healthcare_benefits=1
-order by avg_ptod desc;
-
--- Shows how many companies from the Fortune 500 doesn't offer Healthcare
-SELECT COUNT (*)
+SELECT *
 FROM fortune_companies;
-WHERE healthcare_benefits=0;
 
--- Shows how many employees doesn't have healthcare
-SELECT SUM (employees)
-FROM fortune_companies
-WHERE healthcare_benefits=0;
+--CASE Statement: Group the companies into categories based on their industry using a CASE statement? For example, classify companies as 'High Revenue' if their revenue is above 300, and 'Low Revenue' if it's below 300. How many companies fall into each category?
 
--- Shows companies by how well is their maternity program
-SELECT company_name,
-CASE WHEN maternity_leave_weeks >= 12 THEN 'Above expectations'
-WHEN maternity_leave_weeks >= 10 THEN 'Really Good'
-WHEN maternity_leave_weeks >= 8 THEN 'Good'
-ELSE 'Below expected'
-END as maternity_program
-FROM fortune_companies
-ORDER BY maternity_leave_weeks desc ;
+SELECT industry,
+    CASE 
+        WHEN revenue >= 300 THEN 'High Revenue'
+        ELSE 'Low Revenue' 
+    END AS revenue_category,
+    COUNT(*) AS company_count
+FROM 
+    fortune_companies
+GROUP BY 
+    industry, revenue_category;
 
--- Shows company with at least 15 paid time off days and 10 maternity leave weeks with no healtcare.
-SELECT company_name, paid_time_off_days, maternity_leave_weeks
-FROM fortune_companies
-where paid_time_off_days>=15
-and maternity_leave_weeks>=10
-and healthcare_benefits=0
-ORDER BY paid_time_off_days desc;
+-- After grouping the companies by industry, can you use a HAVING clause to show only the industries where the average employee tenure is greater than 6 years?
+
+SELECT 
+    industry,
+    AVG(avg_employee_tenure) AS avg_tenure,
+    SUM(revenue) AS total_revenue,
+    COUNT(*) AS company_count
+FROM 
+    fortune_companies
+GROUP BY 
+    industry
+HAVING 
+    AVG(avg_employee_tenure) >= 6
+ORDER BY 
+    total_revenue DESC;
+    
+-- Logical Operators (AND/OR): Can you filter the companies to find those that are in the Technology or Healthcare industries and have maternity leave weeks of at least 12 weeks? What is the average revenue for these companies?
+
+SELECT 
+    industry,
+    AVG(revenue) AS avg_revenue
+FROM 
+    fortune_companies
+WHERE 
+    (industry = 'Technology' OR industry = 'Healthcare')
+    AND maternity_leave_weeks >= 12
+GROUP BY 
+    industry;
+    
+-- Can you calculate the total number of employees across all companies where the paid time off days is greater than 18 and healthcare benefits are provided?
+
+SELECT 
+    SUM(employees) AS total_employees
+FROM 
+    fortune_companies
+WHERE 
+    paid_time_off_days > 18
+    AND healthcare_benefits = 1;
+    
+-- Filter the data to find industries where companies either have more than 2,000 employees or provide healthcare benefits. Then, calculate the average number of paid time off days for these industries. Exclude any industries where the average paid time off days is less than 18.
+
+SELECT 
+    industry,
+    AVG(paid_time_off_days) AS avg_paid_time_off
+FROM 
+    fortune_companies
+WHERE 
+    (employees > 2000 OR healthcare_benefits = 1)
+GROUP BY 
+    industry
+HAVING 
+    AVG(paid_time_off_days) >= 18;
+    
+-- Find all companies with an average employee tenure of 6 years or more. Group the results by industry and order them by revenue in descending order.
+
+SELECT 
+    industry,
+    COUNT(*) AS company_count,
+    MAX(revenue) AS max_revenue
+FROM 
+    fortune_companies
+WHERE 
+    avg_employee_tenure >= 6
+GROUP BY 
+    industry
+ORDER BY 
+    max_revenue DESC;
